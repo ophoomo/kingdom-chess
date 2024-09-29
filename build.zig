@@ -45,7 +45,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    exe.subsystem = .Windows;
+    // exe.subsystem = .Windows;
 
     exe.linkLibrary(raylib_artifact);
     exe.root_module.addImport("raylib", raylib);

@@ -12,6 +12,8 @@ pub const ScreenMainMenu = struct {
     btnHover: rl.Sound,
     btnStart: gui.button,
     btnExit: gui.button,
+
+    shader: rl.Shader,
     pub fn onEnter(self: *ScreenMainMenu, screen: *sm.ScreenManager) void {
         rl.traceLog(.log_debug, "Enter MainMenu");
 
@@ -23,10 +25,19 @@ pub const ScreenMainMenu = struct {
             .projection = .camera_perspective,
         };
 
+        self.shader = rl.loadShader("resources/shaders/lighting.vs", "resources/shaders/fog.fs");
+        // self.shader.locs[rl.SHADER_LOC_MATRIX_MODEL] = rl.getShaderLocation(self.shader, "matModel");
+        // self.shader.locs[rl.SHADER_LOC_VECTOR_VIEW] = rl.getShaderLocation(self.shader, "viewPos");
+
+        const ambientLoc = rl.getShaderLocation(self.shader, "ambient");
+        rl.setShaderValue(self.shader, ambientLoc, &[_]f32{ 0.2, 0.2, 0.2, 1.0 }, .shader_uniform_ivec4);
+
+        const fogDensity: f32 = 0.15;
+        const fogDensityLoc = rl.getShaderLocation(self.shader, "fogDensity");
+        rl.setShaderValue(self.shader, fogDensityLoc, &fogDensity, .shader_uniform_float);
+
         self.screen = screen;
-
-        self.btnHover = rl.loadSound("resources/audio/button_hover.wav");
-
+        self.btnHover = rl.loadSound("resources/audio/button_hover.ogg");
         self.background = rl.loadMusicStream("resources/music/mainmenu.mp3");
         rl.setMusicVolume(self.background, 0.4);
         rl.playMusicStream(self.background);
@@ -51,6 +62,7 @@ pub const ScreenMainMenu = struct {
     }
 
     pub fn onUpdate(self: *ScreenMainMenu) void {
+        // rl.setShaderValue(self.shader, self.shader[rl.SHADER_LOC_VECTOR_VIEW], self.camera.position.x, .shader_uniform_vec3);
         rl.updateMusicStream(self.background);
         rl.updateCamera(&self.camera, .camera_custom);
 
@@ -59,20 +71,21 @@ pub const ScreenMainMenu = struct {
         rl.drawGrid(10, 1.0);
         rl.endMode3D();
 
-        if (self.btnStart.draw() == 1) {
+        if (self.btnStart.draw() == 1 or rl.isGamepadButtonPressed(0, .gamepad_button_right_face_down)) {
             self.screen.switchScreen(sm.ScreenType.Game);
         }
 
-        if (self.btnExit.draw() == 1) {
-            rl.closeWindow();
+        if (self.btnExit.draw() == 1 or rl.isGamepadButtonPressed(0, .gamepad_button_right_face_right)) {
+            self.screen.close = true;
         }
 
-        rl.drawText("alpha test", rl.getRenderWidth() - 100, rl.getRenderHeight() - 30, 16, rl.Color.white);
+        rl.drawText("Alpha Test", rl.getRenderWidth() - 100, rl.getRenderHeight() - 30, 16, rl.Color.white);
     }
 
     pub fn onExit(self: *ScreenMainMenu) void {
         rl.traceLog(.log_debug, "Exit MainMenu");
         rl.unloadMusicStream(self.background);
+        rl.unloadShader(self.shader);
         rl.unloadSound(self.btnHover);
     }
 };
