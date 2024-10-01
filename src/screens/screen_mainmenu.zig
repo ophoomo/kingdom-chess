@@ -14,27 +14,30 @@ pub const ScreenMainMenu = struct {
     btnExit: gui.button,
 
     shader: rl.Shader,
+    kingModel: rl.Model,
     pub fn onEnter(self: *ScreenMainMenu, screen: *sm.ScreenManager) void {
         rl.traceLog(.log_debug, "Enter MainMenu");
 
+        self.kingModel = rl.loadModel("resources/models/demo.iqm");
+
         self.camera = rl.Camera3D{
             .position = rl.Vector3.init(0, 1, 6),
-            .target = rl.Vector3.init(0, 0, 0),
+            .target = rl.Vector3.init(0, 1, 0),
             .up = rl.Vector3.init(0, 1, 0),
             .fovy = 45,
             .projection = .camera_perspective,
         };
 
-        self.shader = rl.loadShader("resources/shaders/lighting.vs", "resources/shaders/fog.fs");
+        // self.shader = rl.loadShader("resources/shaders/lighting.vs", "resources/shaders/fog.fs");
         // self.shader.locs[rl.SHADER_LOC_MATRIX_MODEL] = rl.getShaderLocation(self.shader, "matModel");
         // self.shader.locs[rl.SHADER_LOC_VECTOR_VIEW] = rl.getShaderLocation(self.shader, "viewPos");
 
-        const ambientLoc = rl.getShaderLocation(self.shader, "ambient");
-        rl.setShaderValue(self.shader, ambientLoc, &[_]f32{ 0.2, 0.2, 0.2, 1.0 }, .shader_uniform_ivec4);
+        // const ambientLoc = rl.getShaderLocation(self.shader, "ambient");
+        // rl.setShaderValue(self.shader, ambientLoc, &[_]f32{ 0.2, 0.2, 0.2, 1.0 }, .shader_uniform_ivec4);
 
-        const fogDensity: f32 = 0.15;
-        const fogDensityLoc = rl.getShaderLocation(self.shader, "fogDensity");
-        rl.setShaderValue(self.shader, fogDensityLoc, &fogDensity, .shader_uniform_float);
+        // const fogDensity: f32 = 0.15;
+        // const fogDensityLoc = rl.getShaderLocation(self.shader, "fogDensity");
+        // rl.setShaderValue(self.shader, fogDensityLoc, &fogDensity, .shader_uniform_float);
 
         self.screen = screen;
         self.btnHover = rl.loadSound("resources/audio/button_hover.ogg");
@@ -62,13 +65,13 @@ pub const ScreenMainMenu = struct {
     }
 
     pub fn onUpdate(self: *ScreenMainMenu) void {
+        rl.clearBackground(rl.Color.white);
         // rl.setShaderValue(self.shader, self.shader[rl.SHADER_LOC_VECTOR_VIEW], self.camera.position.x, .shader_uniform_vec3);
         rl.updateMusicStream(self.background);
         rl.updateCamera(&self.camera, .camera_custom);
 
         rl.beginMode3D(self.camera);
-        rl.drawCube(rl.Vector3.init(0, 0, 0), 2, 2, 2, rl.Color.red);
-        rl.drawGrid(10, 1.0);
+        rl.drawModel(self.kingModel, rl.Vector3.init(1, 0, 3), 1, rl.Color.white);
         rl.endMode3D();
 
         if (self.btnStart.draw() == 1 or rl.isGamepadButtonPressed(0, .gamepad_button_right_face_down)) {
@@ -85,7 +88,8 @@ pub const ScreenMainMenu = struct {
     pub fn onExit(self: *ScreenMainMenu) void {
         rl.traceLog(.log_debug, "Exit MainMenu");
         rl.unloadMusicStream(self.background);
-        rl.unloadShader(self.shader);
+        // rl.unloadShader(self.shader);
         rl.unloadSound(self.btnHover);
+        rl.unloadModel(self.kingModel);
     }
 };

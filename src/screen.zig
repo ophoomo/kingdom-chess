@@ -57,7 +57,7 @@ pub const ScreenManager = struct {
             .Game => obj.Game.onUpdate(),
         }
         if (self.currentScreen != self.renderScreen) {
-            self.overlay += 0.1;
+            self.overlay += 0.05;
             if (self.overlay >= 1) {
                 self.exit(self.renderScreen);
                 self.renderScreen = self.currentScreen;
@@ -65,7 +65,7 @@ pub const ScreenManager = struct {
             }
         } else {
             if (self.overlay > 0) {
-                self.overlay -= 0.1;
+                self.overlay -= 0.05;
             }
         }
         if (self.overlay > 0) {

@@ -8,7 +8,7 @@ pub fn main() anyerror!void {
 
     rl.setTraceLogLevel(.log_debug);
 
-    rl.initWindow(screenWidth, screenHeight, "Game");
+    rl.initWindow(screenWidth, screenHeight, "Kingdom Chess");
     defer rl.closeWindow();
 
     rl.initAudioDevice();
@@ -30,12 +30,12 @@ pub fn main() anyerror!void {
     defer manager.destroy(alloc);
 
     // Set Starter Screen
+    // manager.enter(sm.ScreenType.MainMenu);
     manager.enter(sm.ScreenType.Splash);
 
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
         defer rl.endDrawing();
-        rl.clearBackground(rl.Color.black);
 
         if (rl.isMouseButtonPressed(.mouse_button_left) or rl.isGamepadButtonPressed(0, .gamepad_button_right_face_up) or rl.isGamepadButtonPressed(0, .gamepad_button_right_face_down) or rl.isGamepadButtonPressed(0, .gamepad_button_right_face_right) or rl.isGamepadButtonPressed(0, .gamepad_button_right_face_left)) {
             rl.playSound(soundClick);
