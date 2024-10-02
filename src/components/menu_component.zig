@@ -14,8 +14,8 @@ pub const MenuComponent = struct {
     overlayAlpha: f32 = 0.0,
     btnBack: gui.button,
     pub fn init(screen: *sm.ScreenManager, hoverSound: rl.Sound) MenuComponent {
-        const width: f32 = @floatFromInt(rl.getRenderWidth());
-        const height: f32 = @floatFromInt(rl.getRenderHeight());
+        const width: f32 = @floatFromInt(rl.getScreenWidth());
+        const height: f32 = @floatFromInt(rl.getScreenHeight());
         const btnwidth = 180.0;
         const btnheight = 40.0;
         const openSound = rl.loadSound("resources/audio/open_menu.ogg");
@@ -52,7 +52,7 @@ pub const MenuComponent = struct {
         }
 
         if (self.overlayAlpha > 0) {
-            rl.drawRectangle(0, 0, rl.getRenderWidth(), rl.getRenderHeight(), rl.colorAlpha(rl.Color.black, self.overlayAlpha));
+            rl.drawRectangle(0, 0, rl.getScreenWidth(), rl.getScreenHeight(), rl.colorAlpha(rl.Color.black, self.overlayAlpha));
             if (self.overlayAlpha > 0.2) {
                 if (self.btnBack.draw() == 1 or rl.isGamepadButtonPressed(0, .gamepad_button_right_face_right)) {
                     self.screen.switchScreen(sm.ScreenType.MainMenu);

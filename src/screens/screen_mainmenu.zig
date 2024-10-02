@@ -47,7 +47,7 @@ pub const ScreenMainMenu = struct {
 
         const padding: f32 = 50.0;
         const btnSpacing: f32 = 10.0;
-        const height: f32 = @floatFromInt(rl.getRenderHeight());
+        const height: f32 = @floatFromInt(rl.getScreenHeight());
         const btnwidth = 200.0;
         const btnheight = 40.0;
 
@@ -82,7 +82,7 @@ pub const ScreenMainMenu = struct {
             self.screen.close = true;
         }
 
-        rl.drawText("Alpha Test", rl.getRenderWidth() - 100, rl.getRenderHeight() - 30, 16, rl.Color.white);
+        rl.drawText("Alpha Test", rl.getScreenWidth() - 100, rl.getScreenHeight() - 30, 16, rl.Color.white);
     }
 
     pub fn onExit(self: *ScreenMainMenu) void {

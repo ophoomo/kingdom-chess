@@ -69,7 +69,7 @@ pub const ScreenManager = struct {
             }
         }
         if (self.overlay > 0) {
-            rl.drawRectangle(0, 0, rl.getRenderWidth(), rl.getRenderHeight(), rl.colorAlpha(rl.Color.black, self.overlay));
+            rl.drawRectangle(0, 0, rl.getScreenWidth(), rl.getScreenHeight(), rl.colorAlpha(rl.Color.black, self.overlay));
         }
     }
 

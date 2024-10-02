@@ -1,6 +1,5 @@
 const rl = @import("raylib");
 const rg = @import("raygui");
-const sm = @import("../screen.zig");
 const gui = @import("../gui.zig");
 
 pub const ShopComponent = struct {

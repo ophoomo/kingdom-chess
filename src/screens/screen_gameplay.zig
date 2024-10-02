@@ -4,6 +4,7 @@ const std = @import("std");
 const sm = @import("../screen.zig");
 const mc = @import("../components/menu_component.zig");
 const sp = @import("../components/shop_component.zig");
+const pe = @import("../components/particle_component.zig");
 
 pub const ScreenGameplay = struct {
     allocator: std.mem.Allocator,
@@ -24,10 +25,12 @@ pub const ScreenGameplay = struct {
     cubeSize: f32 = 1.0,
     offset: f32 = 0,
     objects: std.ArrayList(rl.Vector3),
+    particles: pe.ParticleComponent,
     pub fn onEnter(self: *ScreenGameplay, screen: *sm.ScreenManager) void {
         self.allocator = std.heap.page_allocator;
         rl.traceLog(.log_debug, "Enter Gameplay");
 
+        self.particles = pe.ParticleComponent.init();
         self.btnHoverAudio = rl.loadSound("resources/audio/button_hover.ogg");
         self.placeAudio = rl.loadSound("resources/audio/place.wav");
         rl.setSoundVolume(self.placeAudio, 0.5);
@@ -94,6 +97,7 @@ pub const ScreenGameplay = struct {
                             self.objects.append(rl.Vector3.init(v.x, 0.4, v.z)) catch |err| {
                                 std.debug.print("Caught error: {}\n", .{err});
                             };
+                            self.particles.create(v);
                             rl.playSound(self.placeAudio);
                         } else {
                             const index_in_object_usize: usize = @intCast(index_in_object);
@@ -125,6 +129,8 @@ pub const ScreenGameplay = struct {
         // }
         // rl.drawCube(box, 0.8, 0.8, 0.8, rl.Color.green);
 
+        self.particles.draw();
+
         for (self.objects.items) |item| {
             rl.drawCube(item, 0.8, 0.8, 0.8, rl.Color.red);
         }
@@ -144,6 +150,7 @@ pub const ScreenGameplay = struct {
         rl.unloadSound(self.removeObjectAudio);
         self.objects.deinit();
         self.gridVectors.deinit();
+        self.particles.destroy();
     }
 
     fn initGrid(self: *ScreenGameplay) void {
@@ -151,9 +158,9 @@ pub const ScreenGameplay = struct {
         self.cubeSize = 1.0;
         self.offset = (self.gridSize - 1) * self.cubeSize / 2.0;
         for (0..8) |x| {
-            for (0..8) |z| {
+            for (0..4) |z| {
                 const x_float: f32 = @floatFromInt(x);
-                const z_float: f32 = @floatFromInt(z);
+                const z_float: f32 = @floatFromInt(z + 2);
                 const rect = rl.Vector3.init(x_float - self.offset, 0, z_float - self.offset);
                 self.gridVectors.append(rect) catch |err| {
                     std.debug.print("Caught error: {}\n", .{err});

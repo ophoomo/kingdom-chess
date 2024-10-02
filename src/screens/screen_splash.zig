@@ -26,12 +26,12 @@ pub const ScreenSplash = struct {
             self.screen.switchScreen(sm.ScreenType.MainMenu);
         }
 
-        const widthLogo: f32 = @floatFromInt(rl.getRenderWidth() - self.logoImage.width);
-        const heightLogo: f32 = @floatFromInt(rl.getRenderHeight() - self.logoImage.height);
+        const widthLogo: f32 = @floatFromInt(rl.getScreenWidth() - self.logoImage.width);
+        const heightLogo: f32 = @floatFromInt(rl.getScreenHeight() - self.logoImage.height);
         rl.drawTexture(self.logoImage, @as(i32, @intFromFloat(widthLogo / 2)), @as(i32, @intFromFloat(heightLogo / 2)), rl.Color.white);
 
         if (self.overlayAlpha > 0) {
-            rl.drawRectangle(0, 0, rl.getRenderWidth(), rl.getRenderHeight(), rl.colorAlpha(rl.Color.white, self.overlayAlpha));
+            rl.drawRectangle(0, 0, rl.getScreenWidth(), rl.getScreenHeight(), rl.colorAlpha(rl.Color.white, self.overlayAlpha));
         }
     }
 

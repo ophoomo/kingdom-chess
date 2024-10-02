@@ -30,8 +30,8 @@ pub fn main() anyerror!void {
     defer manager.destroy(alloc);
 
     // Set Starter Screen
-    // manager.enter(sm.ScreenType.MainMenu);
-    manager.enter(sm.ScreenType.Splash);
+    manager.enter(sm.ScreenType.Game);
+    // manager.enter(sm.ScreenType.Splash);
 
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
