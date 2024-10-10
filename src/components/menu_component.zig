@@ -6,27 +6,28 @@ const gui = @import("../gui.zig");
 pub const MenuComponent = struct {
     status: bool = false,
     screen: *sm.ScreenManager,
-    hoverSound: rl.Sound,
     openSound: rl.Sound,
 
     openSoundStatus: bool = false,
+    btnHoverAudio: rl.Sound,
 
     overlayAlpha: f32 = 0.0,
     btnBack: gui.button,
-    pub fn init(screen: *sm.ScreenManager, hoverSound: rl.Sound) MenuComponent {
+    pub fn init(screen: *sm.ScreenManager) MenuComponent {
         const width: f32 = @floatFromInt(rl.getScreenWidth());
         const height: f32 = @floatFromInt(rl.getScreenHeight());
         const btnwidth = 180.0;
         const btnheight = 40.0;
         const openSound = rl.loadSound("resources/audio/open_menu.ogg");
+        const btnHoverAudio = rl.loadSound("resources/audio/button_hover.ogg");
         rl.setSoundVolume(openSound, 0.3);
         return MenuComponent{
             .screen = screen,
-            .hoverSound = hoverSound,
+            .btnHoverAudio = btnHoverAudio,
             .btnBack = gui.button{
                 .rect = rl.Rectangle.init((width - btnwidth) / 2, ((height - btnheight) / 2) + 50, btnwidth, btnheight),
                 .text = "Back",
-                .sound = hoverSound,
+                .sound = btnHoverAudio,
             },
             .openSound = openSound,
         };
@@ -63,5 +64,6 @@ pub const MenuComponent = struct {
 
     pub fn destroy(self: *MenuComponent) void {
         rl.unloadSound(self.openSound);
+        rl.unloadSound(self.btnHoverAudio);
     }
 };

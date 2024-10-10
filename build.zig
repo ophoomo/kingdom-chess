@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
 // Although this function looks imperative, note that its job is to
 // declaratively construct a build graph that will be executed by an external
@@ -45,7 +46,9 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    // exe.subsystem = .Windows;
+    if (builtin.mode != .Debug) {
+        exe.subsystem = .Windows;
+    }
 
     exe.linkLibrary(raylib_artifact);
     exe.root_module.addImport("raylib", raylib);

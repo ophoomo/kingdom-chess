@@ -1,6 +1,7 @@
 const std = @import("std");
 const rl = @import("raylib");
 const sm = @import("screen.zig");
+const builtin = @import("builtin");
 
 pub fn main() anyerror!void {
     const screenWidth = 1280;
@@ -30,8 +31,11 @@ pub fn main() anyerror!void {
     defer manager.destroy(alloc);
 
     // Set Starter Screen
-    manager.enter(sm.ScreenType.Game);
-    // manager.enter(sm.ScreenType.Splash);
+    if (builtin.mode == .Debug) {
+        manager.enter(sm.ScreenType.Splash);
+    } else {
+        manager.enter(sm.ScreenType.Splash);
+    }
 
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
