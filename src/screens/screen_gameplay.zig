@@ -6,7 +6,8 @@ const mc = @import("../components/menu_component.zig");
 const go = @import("../components/game_over_component.zig");
 const sp = @import("../components/shop_component.zig");
 const st = @import("../components/slot_component.zig");
-const grid = @import("../components//grid_component.zig");
+const grid = @import("../components/grid_component.zig");
+const round = @import("../components/round_component.zig");
 
 const object_struct = struct { pos: rl.Vector3 };
 
@@ -19,6 +20,7 @@ pub const ScreenGameplay = struct {
     shop: sp.ShopComponent,
     slot: st.SlotComponent,
     grids: grid.GridComponent,
+    round: round.RoundComponent,
 
     screen: *sm.ScreenManager,
 
@@ -31,6 +33,7 @@ pub const ScreenGameplay = struct {
         self.grids = grid.GridComponent.init(&self.gameOver);
         self.shop = sp.ShopComponent.init();
         self.slot = st.SlotComponent.init();
+        self.round = round.RoundComponent.init();
         self.camera = rl.Camera3D{
             .position = rl.Vector3.init(0, 10, 15),
             .target = rl.Vector3.init(0, 0, 0),
@@ -49,9 +52,16 @@ pub const ScreenGameplay = struct {
 
             const mousePos = rl.getMousePosition();
             const ray = rl.getScreenToWorldRay(mousePos, self.camera);
-            self.grids.mouseEvent(ray);
+            if (!self.round.status) {
+                self.grids.mouseEvent(ray);
+                self.slot.mouseEvent(mousePos);
+            }
         }
 
+        // check king ready
+        if (self.grids.king_object.items.len > 0) self.round.king_ready = true else self.round.king_ready = false;
+
+        self.round.draw();
         self.shop.draw();
         self.slot.draw();
 
@@ -65,6 +75,8 @@ pub const ScreenGameplay = struct {
 
         rl.endMode3D();
         // end draw 3d
+
+        self.grids.drawUI(&self.camera);
 
         if (self.gameOver.status) {
             self.gameOver.draw();
@@ -80,6 +92,7 @@ pub const ScreenGameplay = struct {
         self.slot.destroy();
         self.grids.destroy();
         self.gameOver.destroy();
+        self.round.destroy();
     }
 
     fn cameraController(self: *ScreenGameplay) void {

@@ -3,4 +3,5 @@ pub const object_enum = enum {
     Knight,
     Bishop,
     Villager,
+    None,
 };

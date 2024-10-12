@@ -32,7 +32,7 @@ pub fn main() anyerror!void {
 
     // Set Starter Screen
     if (builtin.mode == .Debug) {
-        manager.enter(sm.ScreenType.Splash);
+        manager.enter(sm.ScreenType.Game);
     } else {
         manager.enter(sm.ScreenType.Splash);
     }

@@ -30,6 +30,11 @@ pub const GridComponent = struct {
     slot_select: *object_enum.object_enum = undefined,
     gameOver: *go.GameOverComponent,
 
+    king_model: rl.Model,
+    knight_model: rl.Model,
+    bishop_model: rl.Model,
+    villager_model: rl.Model,
+
     objects: std.ArrayList(object_struct),
     king_object: std.ArrayList(king_entity.KingEntity),
     knight_object: std.ArrayList(knight_entity.KnightEntity),
@@ -46,11 +51,18 @@ pub const GridComponent = struct {
 
         const particles = pe.ParticleComponent.init();
 
+        // sound
         const placeAudio = rl.loadSound("resources/audio/place.ogg");
         rl.setSoundVolume(placeAudio, 0.5);
         const removeObjectAudio = rl.loadSound("resources/audio/remove_object.ogg");
         const destroySound = rl.loadSound("resources/audio/destroy_object.ogg");
         rl.setSoundVolume(destroySound, 0.5);
+
+        // model
+        const king_model = rl.loadModel("resources/models/king.glb");
+        const knight_model = rl.loadModel("resources/models/knight.glb");
+        const bishop_model = rl.loadModel("resources/models/bishop.glb");
+        const villager_model = rl.loadModel("resources/models/villager.glb");
 
         // setup grid
         for (0..8) |x| {
@@ -79,6 +91,10 @@ pub const GridComponent = struct {
             .villager_object = std.ArrayList(villager_entity.VillagerEntity).init(allocator),
             .gameOver = gameOver,
             .destroySound = destroySound,
+            .king_model = king_model,
+            .knight_model = knight_model,
+            .bishop_model = bishop_model,
+            .villager_model = villager_model,
         };
     }
 
@@ -116,6 +132,24 @@ pub const GridComponent = struct {
         }
     }
 
+    pub fn drawUI(
+        self: *GridComponent,
+        camera: *rl.Camera,
+    ) void {
+        for (self.king_object.items) |*v| {
+            v.drawUI(camera);
+        }
+        for (self.bishop_object.items) |*v| {
+            v.drawUI(camera);
+        }
+        for (self.knight_object.items) |*v| {
+            v.drawUI(camera);
+        }
+        for (self.villager_object.items) |*v| {
+            v.drawUI(camera);
+        }
+    }
+
     pub fn destroy(self: *GridComponent) void {
         self.gridVectors.deinit();
         self.particles.destroy();
@@ -128,6 +162,11 @@ pub const GridComponent = struct {
         self.knight_object.deinit();
         self.villager_object.deinit();
         self.bishop_object.deinit();
+
+        rl.unloadModel(self.king_model);
+        rl.unloadModel(self.knight_model);
+        rl.unloadModel(self.bishop_model);
+        rl.unloadModel(self.villager_model);
     }
 
     pub fn mouseEvent(self: *GridComponent, ray: rl.Ray) void {
@@ -142,7 +181,7 @@ pub const GridComponent = struct {
                         self.removeObject(index_object);
                         rl.playSound(self.removeObjectAudio);
                     } else {
-                        if (self.slot_select != undefined) {
+                        if (self.slot_select.* != object_enum.object_enum.None) {
                             const object = object_struct{
                                 .pos = v,
                                 .unit = self.slot_select.*,
@@ -170,6 +209,7 @@ pub const GridComponent = struct {
             const object = self.objects.items[count];
             var status: bool = false;
             switch (object.unit) {
+                .None => {},
                 .King => {
                     for (self.king_object.items, 0..) |*v, i| {
                         if (object.pos.equals(v.pos) == 1) {
@@ -240,23 +280,24 @@ pub const GridComponent = struct {
 
     fn addObject(self: *GridComponent, object: object_struct) void {
         switch (object.unit) {
+            .None => {},
             .King => {
-                self.king_object.append(king_entity.KingEntity.init(object.pos)) catch |err| {
+                self.king_object.append(king_entity.KingEntity.init(object.pos, self.king_model)) catch |err| {
                     std.debug.print("Caught error: {}\n", .{err});
                 };
             },
             .Knight => {
-                self.knight_object.append(knight_entity.KnightEntity.init(object.pos)) catch |err| {
+                self.knight_object.append(knight_entity.KnightEntity.init(object.pos, self.knight_model)) catch |err| {
                     std.debug.print("Caught error: {}\n", .{err});
                 };
             },
             .Bishop => {
-                self.bishop_object.append(bishop_entity.BishopEntity.init(object.pos)) catch |err| {
+                self.bishop_object.append(bishop_entity.BishopEntity.init(object.pos, self.bishop_model)) catch |err| {
                     std.debug.print("Caught error: {}\n", .{err});
                 };
             },
             .Villager => {
-                self.villager_object.append(villager_entity.VillagerEntity.init(object.pos)) catch |err| {
+                self.villager_object.append(villager_entity.VillagerEntity.init(object.pos, self.villager_model)) catch |err| {
                     std.debug.print("Caught error: {}\n", .{err});
                 };
             },
@@ -267,6 +308,7 @@ pub const GridComponent = struct {
         const index_usize = @as(usize, @intCast(index));
         const object = self.objects.items[index_usize];
         switch (object.unit) {
+            .None => {},
             .King => {
                 for (self.king_object.items, 0..) |*v, i| {
                     if (object.pos.equals(v.pos) == 1) {
